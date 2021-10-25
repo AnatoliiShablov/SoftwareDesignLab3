@@ -1,5 +1,6 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
+import ru.akirakozov.sd.refactoring.html.PageBuilder;
 import ru.akirakozov.sd.refactoring.sql.SqlWorker;
 
 import javax.servlet.http.HttpServlet;
@@ -17,47 +18,46 @@ public class QueryServlet extends HttpServlet {
 
         if ("max".equals(command)) {
             SqlWorker.query("SELECT * FROM PRODUCT ORDER BY PRICE DESC LIMIT 1", rs -> {
-                response.getWriter().println("<html><body>");
-                response.getWriter().println("<h1>Product with max price: </h1>");
+                PageBuilder pb = new PageBuilder();
+                pb.appendHeader1("Product with max price: ");
 
                 while (rs.next()) {
                     String name = rs.getString("name");
                     int price = rs.getInt("price");
-                    response.getWriter().println(name + "\t" + price + "</br>");
+                    pb.appendProductInfo(name, price);
                 }
-                response.getWriter().println("</body></html>");
+                response.getWriter().print(pb);
             });
         } else if ("min".equals(command)) {
             SqlWorker.query("SELECT * FROM PRODUCT ORDER BY PRICE LIMIT 1", rs -> {
-                response.getWriter().println("<html><body>");
-                response.getWriter().println("<h1>Product with min price: </h1>");
+                PageBuilder pb = new PageBuilder();
+                pb.appendHeader1("Product with min price: ");
 
                 while (rs.next()) {
                     String name = rs.getString("name");
                     int price = rs.getInt("price");
-                    response.getWriter().println(name + "\t" + price + "</br>");
+                    pb.appendProductInfo(name, price);
                 }
-                response.getWriter().println("</body></html>");
+                response.getWriter().print(pb);
             });
         } else if ("sum".equals(command)) {
             SqlWorker.query("SELECT SUM(price) FROM PRODUCT", rs -> {
-                response.getWriter().println("<html><body>");
-                response.getWriter().println("Summary price: ");
-
+                PageBuilder pb = new PageBuilder();
+                pb.appendLine("Summary price: ");
                 if (rs.next()) {
-                    response.getWriter().println(rs.getInt(1));
+                    pb.appendLine(rs.getInt(1));
                 }
-                response.getWriter().println("</body></html>");
+
+                response.getWriter().print(pb);
             });
         } else if ("count".equals(command)) {
             SqlWorker.query("SELECT COUNT(*) FROM PRODUCT", rs -> {
-                response.getWriter().println("<html><body>");
-                response.getWriter().println("Number of products: ");
-
+                PageBuilder pb = new PageBuilder();
+                pb.appendLine("Number of products: ");
                 if (rs.next()) {
-                    response.getWriter().println(rs.getInt(1));
+                    pb.appendLine(rs.getInt(1));
                 }
-                response.getWriter().println("</body></html>");
+                response.getWriter().print(pb);
             });
         } else {
             response.getWriter().println("Unknown command: " + command);

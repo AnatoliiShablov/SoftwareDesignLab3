@@ -1,5 +1,6 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
+import ru.akirakozov.sd.refactoring.html.PageBuilder;
 import ru.akirakozov.sd.refactoring.sql.SqlWorker;
 
 import javax.servlet.http.HttpServlet;
@@ -15,14 +16,15 @@ public class GetProductsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         SqlWorker.query("SELECT * FROM PRODUCT", rs -> {
-            response.getWriter().println("<html><body>");
+            PageBuilder pb = new PageBuilder();
 
             while (rs.next()) {
                 String name = rs.getString("name");
                 int price = rs.getInt("price");
-                response.getWriter().println(name + "\t" + price + "</br>");
+                pb.appendProductInfo(name, price);
             }
-            response.getWriter().println("</body></html>");
+
+            response.getWriter().print(pb);
         });
 
         response.setContentType("text/html");
