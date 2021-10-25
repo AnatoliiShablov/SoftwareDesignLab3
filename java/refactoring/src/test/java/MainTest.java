@@ -4,15 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ru.akirakozov.sd.refactoring.Main;
+import ru.akirakozov.sd.refactoring.config.ServerConfig;
+import ru.akirakozov.sd.refactoring.sql.SqlWorker;
 
 import java.io.IOException;
 import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -34,8 +33,6 @@ class MainTest {
         public String name;
         public int price;
     }
-
-    final static int CONNECTION_PORT = 8081;
 
     final static int CONNECTION_MAX_RETRIES = 10;
     final static int CONNECTION_TIMEOUT_IN_MILLIS = 100;
@@ -71,7 +68,7 @@ class MainTest {
 
         for (int i = 0; i < CONNECTION_MAX_RETRIES; ++i) {
             try (Socket socket = new Socket()) {
-                socket.connect(new InetSocketAddress("localhost", CONNECTION_PORT), CONNECTION_TIMEOUT_IN_MILLIS);
+                socket.connect(new InetSocketAddress("localhost", ServerConfig.PORT), CONNECTION_TIMEOUT_IN_MILLIS);
                 return;
             } catch (IOException exception) {
                 Thread.sleep(RECONNECT_TIMEOUT_IN_MILLIS);
@@ -82,26 +79,16 @@ class MainTest {
     }
 
     @BeforeEach
-    void setUp() throws Exception {
-        try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-            String sql = "CREATE TABLE IF NOT EXISTS PRODUCT" +
-                    "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                    " NAME           TEXT    NOT NULL, " +
-                    " PRICE          INT     NOT NULL)";
-            Statement stmt = c.createStatement();
-            stmt.executeUpdate(sql);
-            stmt.close();
-        }
+    void setUp() {
+        SqlWorker.update("CREATE TABLE IF NOT EXISTS PRODUCT" +
+                "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                " NAME           TEXT    NOT NULL, " +
+                " PRICE          INT     NOT NULL)");
     }
 
     @AfterEach
-    void tearDown() throws Exception {
-        try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-            String sql = "DROP TABLE IF EXISTS PRODUCT";
-            Statement stmt = c.createStatement();
-            stmt.executeUpdate(sql);
-            stmt.close();
-        }
+    void tearDown() {
+        SqlWorker.update("DROP TABLE IF EXISTS PRODUCT");
     }
 
     @AfterAll
@@ -112,7 +99,7 @@ class MainTest {
 
 
     URI getHttpAddress(final String path) {
-        return URI.create("http://localhost:" + 8081 + path);
+        return URI.create("http://localhost:" + ServerConfig.PORT + path);
     }
 
 
