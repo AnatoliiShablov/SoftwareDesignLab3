@@ -1,3 +1,5 @@
 *.iml
 .idea
 out
+java/refactoring/target/
+java/refactoring/test.db
