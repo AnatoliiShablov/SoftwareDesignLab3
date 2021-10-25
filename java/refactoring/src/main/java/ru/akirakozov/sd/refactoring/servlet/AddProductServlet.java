@@ -1,5 +1,6 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
+import ru.akirakozov.sd.refactoring.http.HttpResponseBuilder;
 import ru.akirakozov.sd.refactoring.sql.SqlWorker;
 
 import javax.servlet.http.HttpServlet;
@@ -20,8 +21,6 @@ public class AddProductServlet extends HttpServlet {
         SqlWorker.update("INSERT INTO PRODUCT " +
                 "(NAME, PRICE) VALUES (\"" + name + "\"," + price + ")");
 
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().println("OK");
+        HttpResponseBuilder.createResponse(response, HttpServletResponse.SC_OK, "text/html", "OK");
     }
 }

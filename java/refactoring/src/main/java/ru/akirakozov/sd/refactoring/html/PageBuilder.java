@@ -32,7 +32,7 @@ public class PageBuilder {
     }
 
     public String toString() {
-        appendLine("</body></html>");
+        append("</body></html>");
         return sb.toString();
     }
 
