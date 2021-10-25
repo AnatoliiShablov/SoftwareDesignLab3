@@ -204,6 +204,17 @@ class MainTest {
                         .toString());
     }
 
+    void checkCount(final Product[] products) throws IOException, InterruptedException {
+        checkQuery("count", "Number of products: ", products,
+                productStream -> Long.toString(productStream.count()));
+    }
+
+    void checkUnknown(final String command) throws IOException, InterruptedException {
+        getQueryTest(command, new ResponseBuilder()
+                .appendLine("Unknown command: " + command)
+                .toString());
+    }
+
 
     @Test
     void oneElementsTest() throws IOException, InterruptedException {
@@ -260,6 +271,28 @@ class MainTest {
     @Test
     void querySumFewTest() throws IOException, InterruptedException {
         queryTestImpl(FEW_PRODUCTS, this::checkSum);
+    }
+
+    @Test
+    void queryCountZeroTest() throws IOException, InterruptedException {
+        queryTestImpl(ZERO_PRODUCTS, this::checkCount);
+
+    }
+
+    @Test
+    void queryCountOneTest() throws IOException, InterruptedException {
+        queryTestImpl(ONE_PRODUCT, this::checkCount);
+
+    }
+
+    @Test
+    void queryCountFewTest() throws IOException, InterruptedException {
+        queryTestImpl(FEW_PRODUCTS, this::checkCount);
+    }
+
+    @Test
+    void queryUnknownTest() throws IOException, InterruptedException {
+        checkUnknown("biliberda");
     }
 
 }
